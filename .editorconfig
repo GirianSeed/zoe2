@@ -39,11 +39,9 @@ end_of_line     = crlf
 indent_size     = 4
 indent_style    = space
 
-[*.gcl]
+# ZOE "scenario" language
+[*.scn]
 tab_width       = 4
 indent_size     = tab
 indent_style    = tab
-
-# GCL should be EUC-JP, but it's not supported.
-# https://editorconfig.org/#supported-properties
 charset         = utf-8
