@@ -7,10 +7,10 @@
 #include <sifrpc.h>
 
 typedef struct {
-    unsigned int paksize;   /* */
-    unsigned int elfsize;   /* */
-    unsigned int namelen;   /* strlen(name)+1 */
-    unsigned int pad0;      /* padding */
+    unsigned int paksize;   /* size of block    */
+    unsigned int elfsize;   /* size of module   */
+    unsigned int strsize;   /* strlen(name)+1   */
+    unsigned int pad0;      /* padding          */
 } ipkModuleTag;
 
 #define XORKEY_1STVAL   0x7e8a6b4c
@@ -34,17 +34,14 @@ static void decode( u_long *dst, void *src, size_t size )
 
 static int iopLoadInit( void *src )
 {
-    ipkModuleTag modtag;    /* stack -0x78 */
-    ModuleStatus modstat;   /* stack -0x68 */
-    int oldstat;            /* stack -0x08 */
-    int res;                /* stack -0x04 */
+    ipkModuleTag modtag;
+    ModuleStatus modstat;
+    int modid;
+    int oldstat, res;
 
-    int t;
-    int modid;              /* $s0 */
-    void *buffer;           /* $s1 */
-    const char *filename;   /* $s2 */
-    int args;               /* $s4 */
-    const char *argp;       /* $s5 */
+    void *buffer;
+    char *name, *argp;
+    int args;
 
     while (1) {
         xor_work = XORKEY_1STVAL;
@@ -64,10 +61,9 @@ static int iopLoadInit( void *src )
         decode( buffer, src, modtag.paksize );
         src += modtag.paksize;
 
-        filename = (char *)(buffer + modtag.elfsize);
-        argp = (char *)(filename + strlen( filename ) + 1);
-        t = (modtag.namelen - 1);
-        args = (t - strlen( filename ));
+        name = (char *)(buffer + modtag.elfsize);
+        argp = (char *)(name + strlen( name ) + 1);
+        args = (modtag.strsize - (strlen( name ) + 1));
 
         modid = LoadModuleBuffer( buffer );
         FreeSysMemory( buffer );
@@ -76,7 +72,7 @@ static int iopLoadInit( void *src )
             continue;
         }
         ReferModuleStatus( modid, &modstat );
-        res = StartModule( modid, filename, args, argp, &res );
+        res = StartModule( modid, name, args, argp, &res );
     }
     return 0;
 }
@@ -88,8 +84,7 @@ int start( int argc, char *argv[] )
     sceSifInitRpc( 0 );
 
     if (iopLoadInit( (void *)addr ) < 0) {
-        return KE_ERROR;
-    } else {
-        return NO_RESIDENT_END;
+        return -1;
     }
+    return NO_RESIDENT_END;
 }
