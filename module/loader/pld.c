@@ -18,6 +18,11 @@ typedef struct {
 
 static u_long xor_work = XORKEY_1STVAL;
 
+#ifdef CDBIOS_OVERRIDE
+static char argbuf[8];
+static int dvd_mode;
+#endif
+
 static void decode( u_long *dst, void *src, size_t size )
 {
     int i;
@@ -71,6 +76,18 @@ static int iopLoadInit( void *src )
         if (modid < 0) {
             continue;
         }
+#ifdef CDBIOS_OVERRIDE
+        if (strcmp(name, "cdbios.irx") == 0) {
+            if (!dvd_mode) {
+                strcpy(&argbuf[0], "CD");
+                args = sizeof("CD");
+            } else {
+                strcpy(&argbuf[0], "DVD");
+                args = sizeof("DVD");
+            }
+            argp = argbuf;
+        }
+#endif
         ReferModuleStatus( modid, &modstat );
         res = StartModule( modid, name, args, argp, &res );
     }
@@ -80,6 +97,15 @@ static int iopLoadInit( void *src )
 int start( int argc, char *argv[] )
 {
     long addr = strtol( argv[1], NULL, 16 );
+
+#ifdef CDBIOS_OVERRIDE
+    if (addr & 1) {
+        dvd_mode = 1;
+    } else {
+        dvd_mode = 0;
+    }
+    addr &= ~1;
+#endif
 
     sceSifInitRpc( 0 );
 

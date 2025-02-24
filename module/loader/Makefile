@@ -26,6 +26,11 @@ CFLAGS      = -G0 -O2 -Wall
 ASFLAGS     =
 CPPFLAGS    = -I$(IOP_INCDIR) -I$(SCE_ROOT)/common/include
 
+# Override cdbios.irx's media type args for SCEA/SCEE demos.
+ifdef CDBIOS_OVERRIDE
+CPPFLAGS += -DCDBIOS_OVERRIDE
+endif
+
 PROGNAME    = pld
 
 SRCS        = pld.c
