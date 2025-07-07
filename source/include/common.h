@@ -2,8 +2,17 @@
 #define __ZOE2_COMMON_H__
 
 #include <stddef.h>
+#include <limits.h>
 #include <sys/types.h>
 #include <eetypes.h>
+
+/* MSVC defines _countof as an extension to stdlib.h */
+#ifndef _countof
+#define _countof(array) (sizeof(array)/sizeof(array[0]))
+#endif
+/* alternate names without the leading underscore */
+#define countof(array)  _countof(array)
+#define COUNTOF(array)  _countof(array)
 
 /*---------------------------------------------------------------------------*/
 // https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
@@ -29,7 +38,7 @@
 #  else
 #    define __GNUC_PREREQ(maj, min) 0
 #  endif
-#endif
+#endif /* __GNUC_PREREQ */
 /* Version with trailing underscores for BSD compatibility. */
 #ifndef __GNUC_PREREQ__
 #define __GNUC_PREREQ__(maj, min) __GNUC_PREREQ(maj, min)
@@ -50,12 +59,6 @@
 #ifndef CLAMP
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
 #endif
-
-#ifndef _countof
-#define _countof(array) (sizeof(array)/sizeof(array[0]))
-#endif
-#define countof(array)  _countof(array)
-#define COUNTOF(array)  _countof(array)
 
 #define PACKED          __attribute__((packed))
 #define ALIGN(_x)       __attribute__((aligned(_x)))
@@ -150,7 +153,6 @@
 #define COLOR_YELLOW    MAKE_RGB0(255,255,  0)
 
 /*---------------------------------------------------------------------------*/
-// https://en.cppreference.com/w/c/language/arithmetic_types#Boolean_type
 // NOTE: (bool)0.5 evaluates to true, whereas (int)0.5 evaluates to 0.
 
 typedef int             BOOL;
