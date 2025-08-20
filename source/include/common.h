@@ -45,6 +45,7 @@
 #endif
 
 /*---------------------------------------------------------------------------*/
+// Common Macro #defines
 
 #ifndef MIN
 #define MIN(x, y)       (((x) < (y)) ? (x) : (y))
@@ -53,15 +54,30 @@
 #define MAX(x, y)       (((x) > (y)) ? (x) : (y))
 #endif
 #ifndef ABS
-#define ABS(x)          (((x) >= 0) ? (x) : -(x))
+#define ABS(x)          (((x) < 0) ? -(x) : (x))
 #endif
+
+#define SIGN(x)         (((x) > 0) - ((x) < 0))
+//#define SIGN(x)       (((x) < 0) ? -1 : ((x) > 0) ? 1 : 0)
+//#define SIGN(x)       (((x) < 0) ? -1 : !!(x))
 
 #ifndef CLAMP
 #define CLAMP(x, min, max) (MAX(MIN(x, max), min))
+//#define CLAMP(x, min, max) (((x) < (min)) ? (min) : ((x) > (max)) ? (max) : (x))
+//#define CLAMP(x, min, max) (((x) > (max)) ? (max) : ((x) < (min)) ? (min) : (x))
 #endif
 
-#define PACKED          __attribute__((packed))
+#if defined(__GNUC__)
 #define ALIGN(_x)       __attribute__((aligned(_x)))
+#define PACKED          __attribute__((packed))
+#elif defined(_MSC_VER)
+#define ALIGN(_x)       __declspec(align(_x))
+#define PACKED          /* discard */
+#else
+#define ALIGN(_x)       /* discard */
+#define PACKED          /* discard */
+#endif
+/* common alignments */
 #define ALIGN8          ALIGN(8)
 #define ALIGN16         ALIGN(16)
 #define ALIGN64         ALIGN(64)
@@ -69,8 +85,16 @@
 
 /*---------------------------------------------------------------------------*/
 
+// This will crash the program with the intention of invoking
+// the MTS exception handler screen (which was compiled out).
+//
+// I guess KCEJ chose to dereference 1 instead of 0 to distinguish
+// exceptions raised intentionally from actual NULL-pointer dereferences.
+// Notice that it's also writing to an unaligned memory address.
+//
 #define HANGUP()        (*(int *)1 = 0)
 
+// TODO: Should these be wrapped with 'do {} while (0)'?
 #define ASSERT(cond)                                            \
     if (!(cond)) {                                              \
         printf("assertion failed : ");                          \
@@ -78,7 +102,7 @@
         HANGUP();                                               \
     }
 
-#define XASSERT(cond, mesg ...)                                 \
+#define XASSERT(cond, mesg...)                                  \
     if (!(cond)) {                                              \
         printf("assertion failed : " mesg);                     \
         printf("\n in %s(%d) from %s \n", __FILE__, __LINE__, __FILE__); \
@@ -86,6 +110,7 @@
     }
 
 /*---------------------------------------------------------------------------*/
+// Color Format #defines
 
 /* RGBA8888 format */
 #ifdef WORDS_BIGENDIAN
