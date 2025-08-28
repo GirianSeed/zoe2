@@ -1,10 +1,10 @@
 #ifndef __ZOE2_COMMON_H__
 #define __ZOE2_COMMON_H__
 
-#include <stddef.h>
-#include <limits.h>
+#include <stddef.h>     // for NULL, size_t
+#include <limits.h>     // for MIN/MAX
 #include <sys/types.h>
-#include <eetypes.h>
+#include <eetypes.h>    // for u_long128
 
 /* MSVC defines _countof as an extension to stdlib.h */
 #ifndef _countof
@@ -30,6 +30,7 @@
 #  define GCC_VERSION 0
 #endif // __GNUC__
 
+// Stolen from <features.h>
 /* Macro to test version of GCC.  Returns 0 for non-GCC or too old GCC. */
 #ifndef __GNUC_PREREQ
 #  if defined(__GNUC__) && defined(__GNUC_MINOR__)
@@ -67,6 +68,9 @@
 //#define CLAMP(x, min, max) (((x) > (max)) ? (max) : ((x) < (min)) ? (min) : (x))
 #endif
 
+/*---------------------------------------------------------------------------*/
+// Compiler attribute #defines
+
 #if defined(__GNUC__)
 #define ALIGN(_x)       __attribute__((aligned(_x)))
 #define PACKED          __attribute__((packed))
@@ -82,6 +86,13 @@
 #define ALIGN16         ALIGN(16)
 #define ALIGN64         ALIGN(64)
 #define ALIGN128        ALIGN(128)
+
+// You can also just use ((void)foo) to suppress warnings.
+#if defined(__GNUC__)
+#define UNUSED          __attribute__((unused))
+#else
+#define UNUSED          /* discard */
+#endif
 
 /*---------------------------------------------------------------------------*/
 
