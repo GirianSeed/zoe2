@@ -1,4 +1,8 @@
+### ioplibgen ###
+*.ilb
 *_entry.o
 *_entry.s
 *ent.o
 *ent.s
+__tmp.o
+__tmp.s
