@@ -21,8 +21,8 @@ enum {
     PAD_R1      = SCE_PADR1,      // 0x0008 R1
     PAD_L2      = SCE_PADL2,      // 0x0001 L2
     PAD_R2      = SCE_PADR2,      // 0x0002 R2
-    PAD_STA     = SCE_PADstart,   // 0x0800 STA
-    PAD_SEL     = SCE_PADselect,  // 0x0100 SEL
+    PAD_STA     = SCE_PADstart,   // 0x0800 START
+    PAD_SEL     = SCE_PADselect,  // 0x0100 SELECT
     PAD_AL      = SCE_PADi,       // 0x0200 L3
     PAD_AR      = SCE_PADj,       // 0x0400 R3
 
